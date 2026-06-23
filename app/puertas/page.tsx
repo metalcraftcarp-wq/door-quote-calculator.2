@@ -13,6 +13,7 @@ import {
   type DatosPresupuesto,
   type LineaPresupuesto,
 } from "@/components/plantilla-presupuesto"
+import { MiniBoceto } from "@/components/mini-boceto"
 import {
   calcular,
   VALORES_INICIALES,
@@ -29,7 +30,7 @@ export default function Page() {
   const [telefono, setTelefono] = useState("")
   const [direccion, setDireccion] = useState("")
   const [numero, setNumero] = useState("")
-  const [asesor, setAsesor] = useState("")
+  const [descripcion, setDescripcion] = useState("")
   const [observaciones, setObservaciones] = useState("")
   const [mostrarClienteView, setMostrarClienteView] = useState(false)
   const [guardando, setGuardando] = useState(false)
@@ -72,28 +73,34 @@ export default function Page() {
       detalles.push(`paño fijo ${valores.panoFijoAncho} × ${valores.panoFijoAlto} m`)
     }
 
+    const descripcionAuto = `Puerta de aluminio Línea Herrero — ${detalles.join(", ")}`
+    const descripcionFinal = descripcion.trim()
+      ? `${descripcion.trim()}\n${descripcionAuto}`
+      : descripcionAuto
+
     const items: LineaPresupuesto[] = [
       {
-        descripcion: `Puerta de aluminio Línea Herrero — ${detalles.join(", ")}`,
+        descripcion: descripcionFinal,
         cantidad: 1,
         precioUnitario: resultado.total,
         precioTotal: resultado.total,
+        boceto: <MiniBoceto parametros={valores} />,
       },
     ]
 
     return {
-      numero: numero.trim(),
+      numero: numero.trim() || "S/N",
       fecha,
       validoHasta,
-      asesor: asesor.trim(),
+      asesor: "predeterminado",
       cliente: cliente.trim(),
       telefono: telefono.trim(),
-      direccion: direccion.trim(),
+      direccion: direccion.trim() || "S/N",
       items,
       total: resultado.total,
       observaciones: observaciones.trim(),
     }
-  }, [valores, resultado, numero, fecha, validoHasta, asesor, cliente, telefono, direccion, observaciones])
+  }, [valores, resultado, numero, fecha, validoHasta, cliente, telefono, direccion, descripcion, observaciones])
 
   function handleChange(key: keyof Parametros, value: number) {
     setValores((prev) => ({ ...prev, [key]: value }))
@@ -105,7 +112,7 @@ export default function Page() {
     setTelefono("")
     setDireccion("")
     setNumero("")
-    setAsesor("")
+    setDescripcion("")
     setObservaciones("")
   }
 
@@ -230,15 +237,6 @@ export default function Page() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="telefono">Teléfono</Label>
-                <Input
-                  id="telefono"
-                  placeholder="Ej: 3624-000000"
-                  value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="direccion">Dirección</Label>
                 <Input
                   id="direccion"
@@ -246,6 +244,9 @@ export default function Page() {
                   value={direccion}
                   onChange={(e) => setDireccion(e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Si se deja vacío se imprime &quot;S/N&quot;
+                </p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="numero">N.º de presupuesto</Label>
@@ -255,14 +256,17 @@ export default function Page() {
                   value={numero}
                   onChange={(e) => setNumero(e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Si se deja vacío se imprime &quot;S/N&quot;
+                </p>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="asesor">Asesor</Label>
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <Label htmlFor="telefono">Teléfono</Label>
                 <Input
-                  id="asesor"
-                  placeholder="Ej: María Gómez"
-                  value={asesor}
-                  onChange={(e) => setAsesor(e.target.value)}
+                  id="telefono"
+                  placeholder="Ej: 3624-000000"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
                 />
               </div>
               <div className="flex flex-col gap-1.5 sm:col-span-2">
@@ -276,6 +280,29 @@ export default function Page() {
                   className="flex min-h-[72px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 />
               </div>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Válido por 7 días · Asesor: predeterminado
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="mb-1 text-sm font-semibold text-foreground">Descripción</p>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Texto que aparecerá en la tabla del presupuesto, junto al boceto de la puerta.
+            </p>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="descripcion" className="sr-only">
+                Descripción del producto
+              </Label>
+              <textarea
+                id="descripcion"
+                rows={3}
+                placeholder="Ej: Puerta de entrada con tablillas y revestimiento, color blanco"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                className="flex min-h-[72px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              />
             </div>
           </div>
 

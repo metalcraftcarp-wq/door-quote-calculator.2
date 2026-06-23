@@ -8,6 +8,7 @@ export type LineaPresupuesto = {
   cantidad: number
   precioUnitario: number
   precioTotal: number
+  boceto?: React.ReactNode
 }
 
 export type DatosPresupuesto = {
@@ -158,7 +159,18 @@ export function PlantillaPresupuesto({
             {datos.items.map((item, i) => (
               <tr key={i}>
                 <td className="border border-border px-3 py-2.5 align-top text-[13px] text-foreground">
-                  {item.descripcion}
+                  {item.boceto ? (
+                    <div className="flex items-start gap-3">
+                      <span className="shrink-0" style={printColor}>
+                        {item.boceto}
+                      </span>
+                      <span className="min-w-0 flex-1 whitespace-pre-line">
+                        {item.descripcion}
+                      </span>
+                    </div>
+                  ) : (
+                    item.descripcion
+                  )}
                 </td>
                 <td className="border border-border px-2 py-2.5 text-center align-top text-[13px] text-foreground">
                   {item.cantidad}
