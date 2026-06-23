@@ -31,7 +31,6 @@ export default function Page() {
   const [direccion, setDireccion] = useState("")
   const [numero, setNumero] = useState("")
   const [descripcion, setDescripcion] = useState("")
-  const [observaciones, setObservaciones] = useState("")
   const [mostrarClienteView, setMostrarClienteView] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState("")
@@ -98,9 +97,8 @@ export default function Page() {
       direccion: direccion.trim() || "S/N",
       items,
       total: resultado.total,
-      observaciones: observaciones.trim(),
     }
-  }, [valores, resultado, numero, fecha, validoHasta, cliente, telefono, direccion, descripcion, observaciones])
+  }, [valores, resultado, numero, fecha, validoHasta, cliente, telefono, direccion, descripcion])
 
   function handleChange(key: keyof Parametros, value: number) {
     setValores((prev) => ({ ...prev, [key]: value }))
@@ -113,7 +111,6 @@ export default function Page() {
     setDireccion("")
     setNumero("")
     setDescripcion("")
-    setObservaciones("")
   }
 
   async function guardarCotizacion() {
@@ -267,17 +264,6 @@ export default function Page() {
                   placeholder="Ej: 3624-000000"
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <Label htmlFor="observaciones">Observaciones</Label>
-                <textarea
-                  id="observaciones"
-                  rows={3}
-                  placeholder="Notas, condiciones de pago, plazos de entrega, etc."
-                  value={observaciones}
-                  onChange={(e) => setObservaciones(e.target.value)}
-                  className="flex min-h-[72px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 />
               </div>
             </div>

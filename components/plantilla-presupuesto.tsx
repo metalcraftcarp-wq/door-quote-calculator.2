@@ -21,7 +21,6 @@ export type DatosPresupuesto = {
   direccion: string
   items: LineaPresupuesto[]
   total: number
-  observaciones: string
 }
 
 const EMPRESA = {
@@ -209,24 +208,6 @@ export function PlantillaPresupuesto({
           <span className="font-mono text-xl font-bold tabular-nums text-foreground">
             {moneda(datos.total)}
           </span>
-        </div>
-      </section>
-
-      {/* Observaciones */}
-      <section className="relative mt-6">
-        <p className="text-[13px] text-foreground">Observaciones:</p>
-        <div className="mt-2 flex flex-col gap-3">
-          {datos.observaciones ? (
-            <p className="whitespace-pre-line border-b border-foreground/20 pb-1 text-[13px] text-muted-foreground">
-              {datos.observaciones}
-            </p>
-          ) : (
-            <>
-              <div className="border-b border-foreground/20 pb-3" />
-              <div className="border-b border-foreground/20 pb-3" />
-              <div className="border-b border-foreground/20 pb-3" />
-            </>
-          )}
         </div>
       </section>
 
