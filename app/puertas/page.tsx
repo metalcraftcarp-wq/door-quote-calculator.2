@@ -9,6 +9,11 @@ import { CamposCotizador } from "@/components/campos-cotizador"
 import { ResultadoPresupuesto } from "@/components/resultado-presupuesto"
 import { BocetoPuerta } from "@/components/boceto-puerta"
 import {
+  PlantillaPresupuesto,
+  type DatosPresupuesto,
+  type LineaPresupuesto,
+} from "@/components/plantilla-presupuesto"
+import {
   calcular,
   VALORES_INICIALES,
   type Parametros,
@@ -21,6 +26,11 @@ export default function Page() {
   const router = useRouter()
   const [valores, setValores] = useState<Parametros>(VALORES_INICIALES)
   const [cliente, setCliente] = useState("")
+  const [telefono, setTelefono] = useState("")
+  const [direccion, setDireccion] = useState("")
+  const [numero, setNumero] = useState("")
+  const [asesor, setAsesor] = useState("")
+  const [observaciones, setObservaciones] = useState("")
   const [mostrarClienteView, setMostrarClienteView] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState("")
@@ -42,6 +52,49 @@ export default function Page() {
     [],
   )
 
+  const validoHasta = useMemo(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 7)
+    return d.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    })
+  }, [])
+
+  // Datos para la plantilla A4 imprimible (vista cliente: solo precio final)
+  const datosPresupuesto = useMemo<DatosPresupuesto>(() => {
+    const detalles: string[] = [`${valores.ancho} × ${valores.alto} m`]
+    if (valores.revAncho > 0 && valores.revAlto > 0) {
+      detalles.push("con revestimiento")
+    }
+    if (valores.panoFijoEnabled && valores.panoFijoAlto > 0 && valores.panoFijoAncho > 0) {
+      detalles.push(`paño fijo ${valores.panoFijoAncho} × ${valores.panoFijoAlto} m`)
+    }
+
+    const items: LineaPresupuesto[] = [
+      {
+        descripcion: `Puerta de aluminio Línea Herrero — ${detalles.join(", ")}`,
+        cantidad: 1,
+        precioUnitario: resultado.total,
+        precioTotal: resultado.total,
+      },
+    ]
+
+    return {
+      numero: numero.trim(),
+      fecha,
+      validoHasta,
+      asesor: asesor.trim(),
+      cliente: cliente.trim(),
+      telefono: telefono.trim(),
+      direccion: direccion.trim(),
+      items,
+      total: resultado.total,
+      observaciones: observaciones.trim(),
+    }
+  }, [valores, resultado, numero, fecha, validoHasta, asesor, cliente, telefono, direccion, observaciones])
+
   function handleChange(key: keyof Parametros, value: number) {
     setValores((prev) => ({ ...prev, [key]: value }))
   }
@@ -49,6 +102,11 @@ export default function Page() {
   function reset() {
     setValores(VALORES_INICIALES)
     setCliente("")
+    setTelefono("")
+    setDireccion("")
+    setNumero("")
+    setAsesor("")
+    setObservaciones("")
   }
 
   async function guardarCotizacion() {
@@ -157,14 +215,68 @@ export default function Page() {
           </div>
         )}
         <section className="no-print flex flex-col gap-5">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cliente">Cliente / Referencia</Label>
-            <Input
-              id="cliente"
-              placeholder="Ej: Juan Pérez - Puerta exterior"
-              value={cliente}
-              onChange={(e) => setCliente(e.target.value)}
-            />
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="mb-3 text-sm font-semibold text-foreground">
+              Datos del presupuesto y cliente
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <Label htmlFor="cliente">Nombre del cliente</Label>
+                <Input
+                  id="cliente"
+                  placeholder="Ej: Juan Pérez"
+                  value={cliente}
+                  onChange={(e) => setCliente(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="telefono">Teléfono</Label>
+                <Input
+                  id="telefono"
+                  placeholder="Ej: 3624-000000"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="direccion">Dirección</Label>
+                <Input
+                  id="direccion"
+                  placeholder="Ej: Av. Siempreviva 742"
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="numero">N.º de presupuesto</Label>
+                <Input
+                  id="numero"
+                  placeholder="Ej: 0001"
+                  value={numero}
+                  onChange={(e) => setNumero(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="asesor">Asesor</Label>
+                <Input
+                  id="asesor"
+                  placeholder="Ej: María Gómez"
+                  value={asesor}
+                  onChange={(e) => setAsesor(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <Label htmlFor="observaciones">Observaciones</Label>
+                <textarea
+                  id="observaciones"
+                  rows={3}
+                  placeholder="Notas, condiciones de pago, plazos de entrega, etc."
+                  value={observaciones}
+                  onChange={(e) => setObservaciones(e.target.value)}
+                  className="flex min-h-[72px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                />
+              </div>
+            </div>
           </div>
 
           <CamposCotizador valores={valores} onChange={handleChange} />
@@ -220,39 +332,14 @@ export default function Page() {
           )}
 
           {mostrarClienteView && (
-            <>
-              <ResultadoPresupuesto
-                resultado={resultado}
-                parametros={valores}
-                cliente={cliente}
-                fecha={fecha}
-                esCliente={true}
-              />
-              <BocetoPuerta resultado={resultado} parametros={valores} />
-            </>
+            <div className="no-print overflow-x-auto">
+              <PlantillaPresupuesto datos={datosPresupuesto} />
+            </div>
           )}
 
-          <div className="hidden print:block print:page-break-before">
-            <ResultadoPresupuesto
-              resultado={resultado}
-              parametros={valores}
-              cliente={cliente}
-              fecha={fecha}
-              esCliente={false}
-            />
-            <div className="mt-6">
-              <BocetoPuerta resultado={resultado} parametros={valores} />
-            </div>
-          </div>
-
+          {/* Documento A4 imprimible / exportable a PDF */}
           <div className="hidden print:block">
-            <ResultadoPresupuesto
-              resultado={resultado}
-              parametros={valores}
-              cliente={cliente}
-              fecha={fecha}
-              esCliente={true}
-            />
+            <PlantillaPresupuesto datos={datosPresupuesto} id="presupuesto-cliente-print" />
           </div>
         </aside>
       </div>
